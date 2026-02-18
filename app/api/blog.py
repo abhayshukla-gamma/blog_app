@@ -7,11 +7,13 @@ from app.core.jwt import decode_access_token
 from fastapi.security import OAuth2PasswordBearer
 from app.schemas.blog import BlogCreate, BlogUpdate
 from app.core.security import get_current_user
+from fastapi import BackgroundTasks
+from app.core.email import send_blog_email
 
 router = APIRouter(prefix="/blog", tags=["Blog Api"])
 
 @router.post("/add")
-def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_user), db : Session = Depends(get_db)):
+def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_user), db : Session = Depends(get_db),background_tasks: BackgroundTasks = BackgroundTasks()):
 
 # current_user : User = Depends(get_current_user)    to fetch the current user 
     new_blog = Blog(
@@ -20,6 +22,12 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
         user_id = current_user.id
 
     )
+
+    background_tasks.add_task(
+        send_blog_email,
+        current_user.email, 
+        blog.title,
+        blog.content)
 
     db.add(new_blog)
     db.commit()
