@@ -34,7 +34,7 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
-    redis_client.delete("allblogs")
+    redis_client.delete("allblogs")  # redis server agar running nahi raha to 111 error aayega like server error redis kisi or post port pe h
 
     return {
         "message" : "blog added"
