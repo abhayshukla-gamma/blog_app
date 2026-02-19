@@ -9,6 +9,8 @@ from app.schemas.blog import BlogCreate, BlogUpdate
 from app.core.security import get_current_user
 from fastapi import BackgroundTasks
 from app.core.email import send_blog_email
+from app.core.redis_client import redis_client
+import json
 
 router = APIRouter(prefix="/blog", tags=["Blog Api"])
 
@@ -23,7 +25,7 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
 
     )
 
-    background_tasks.add_task(
+    background_tasks.add_task(       # background_tasks ab ek object h.. background me kaam karne ke  liye likh sakte   
         send_blog_email,
         current_user.email, 
         blog.title,
@@ -32,6 +34,7 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
+    redis_client.delete("allblogs")
 
     return {
         "message" : "blog added"
@@ -41,9 +44,31 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
 @router.get("/getblogs")
 def get_all_blogs(db : Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 
-    blogs = db.query(Blog).all()
+    cached_data = redis_client.get("all_blogs")    # check in redis data is present or not 
 
-    return blogs
+    if cached_data:
+   
+        return json.loads(cached_data)             # if found then convert the json string into python object 
+    
+    
+    
+    
+    
+    blogs = db.query(Blog).all()                   # if not found in redis then search in database 
+
+   
+    blog_list = []                                 # sqlalchemy convert convert object into dictionary 
+    for blog in blogs:
+        blog_list.append({
+            "blog_id" : blog.blog_id,
+            "title" : blog.title,
+            "content" : blog.content,
+            "user_id" : blog.user_id
+        })
+
+        redis_client.set("all_blogs", json.dumps(blog_list), ex=60)
+   
+    return blog_list
 
 
 @router.get("/blogs/{blog_id}")
@@ -52,7 +77,7 @@ def get_single_blog(blog_id : int, db : Session = Depends(get_db),current_user: 
     blog = db.query(Blog).filter(Blog.blog_id== blog_id).first()
 
     if blog.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Not authorized")          # 401 user unauthorized 403 is authenticated but not authorized 
 
     
     return blog

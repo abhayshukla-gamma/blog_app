@@ -1,5 +1,5 @@
-import smtplib  # SMTP server se connect karne ke liye
-from email.message import EmailMessage  # email object banane ke liye
+import smtplib  # SMTP server se connect karne ke liye "ek module hai smtp protocol ke through email send karta hai"
+from email.message import EmailMessage  # email object banane ke liye email modeule ke andar sub module message uske andar ek class EmailMessage 
 
 
 def send_blog_email(user_email: str, title: str, content: str):
@@ -11,7 +11,7 @@ def send_blog_email(user_email: str, title: str, content: str):
     EMAIL_PASSWORD = "roqqpkroewvoxzgt"
 
   
-    msg = EmailMessage()
+    msg = EmailMessage()                        # ye class ka object banaya 
 
     
     msg["Subject"] = "New Blog Created"
@@ -34,10 +34,10 @@ def send_blog_email(user_email: str, title: str, content: str):
     )
 
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:         # server se connect tcp protocol se bhejte hai 
 
-        server.starttls()  # connection secure karta hai
+        server.starttls()                                       # connection secure karta hai
 
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)  # gmail login karta hai
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)             # gmail login karta hai
 
-        server.send_message(msg)  # email bhej deta hai
+        server.send_message(msg)                                # email bhej deta hai
