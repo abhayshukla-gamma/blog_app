@@ -13,5 +13,42 @@ class User(Base):
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)  
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     # blogs = relationship("Blog", back_populates="author")
 
