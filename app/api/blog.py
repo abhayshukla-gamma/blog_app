@@ -11,10 +11,13 @@ from fastapi import BackgroundTasks
 from app.core.email import send_blog_email
 from app.core.redis_client import redis_client
 import json
+from pyrate_limiter import Duration, Limiter, Rate
+from fastapi_limiter.depends import RateLimiter
+
 
 router = APIRouter(prefix="/blog", tags=["Blog Api"])
 
-@router.post("/add")
+@router.post("/add" , )
 def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_user), db : Session = Depends(get_db),background_tasks: BackgroundTasks = BackgroundTasks()):
 
 # current_user : User = Depends(get_current_user)    to fetch the current user 
@@ -41,14 +44,14 @@ def create_blog(blog : BlogCreate, current_user : User = Depends(get_current_use
     }
 
 
-@router.get("/getblogs")
+@router.get("/getblogs",dependencies=[Depends(RateLimiter(limiter=Limiter(Rate(2, Duration.SECOND * 5))))],)
 def get_all_blogs(db : Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 
     cached_data = redis_client.get("all_blogs")    # check in redis data is present or not 
 
     if cached_data:
-   
-        return json.loads(cached_data)             # if found then convert the json string into python object 
+    
+        return json.loads(cached_data)             # if found then convert the json string into python object  redis data string me store karta hai 
     
     
     
@@ -118,5 +121,5 @@ def delete_blog(blog_id, current_user: User = Depends(get_current_user), db : Se
 
     return {
         "message" : "blog deleted"
-    }
+    }  
     

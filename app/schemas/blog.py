@@ -8,4 +8,4 @@ class BlogCreate(BaseModel):
 
 class BlogUpdate(BaseModel):
     title : str
-    content :  str
+    content : str

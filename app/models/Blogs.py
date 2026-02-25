@@ -14,4 +14,4 @@ class Blog(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
-    author = (relationship("User", back_populates="blogs"))
+    # author = (relationship("User", back_populates="blogs"))
