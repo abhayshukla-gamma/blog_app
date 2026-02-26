@@ -1,6 +1,8 @@
-from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+
+from jose import JWTError, jwt
+
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 
 
 def create_access_token(data: dict):
